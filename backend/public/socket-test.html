@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Socket.io Test</title>
+  <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+    .log { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 5px; }
+    .success { color: green; }
+    .error { color: red; }
+    input { padding: 8px; margin: 5px; width: 300px; }
+    button { padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>🔌 Socket.io Real-Time Test</h1>
+  
+  <div>
+    <input type="text" id="token" placeholder="Enter JWT Token" style="width: 500px;">
+    <button onclick="connect()">Connect</button>
+    <button onclick="disconnect()">Disconnect</button>
+  </div>
+
+  <h3>Connection Status: <span id="status" class="error">Disconnected</span></h3>
+
+  <h3>Events Log:</h3>
+  <div id="logs"></div>
+
+  <script>
+    let socket;
+
+    function addLog(message, type = 'log') {
+      const logs = document.getElementById('logs');
+      const log = document.createElement('div');
+      log.className = `log ${type}`;
+      log.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logs.insertBefore(log, logs.firstChild);
+    }
+
+    function connect() {
+      const token = document.getElementById('token').value;
+      
+      if (!token) {
+        alert('Please enter JWT token');
+        return;
+      }
+
+      socket = io('http://localhost:5000', {
+        auth: { token }
+      });
+
+      socket.on('connect', () => {
+        document.getElementById('status').textContent = 'Connected ✅';
+        document.getElementById('status').className = 'success';
+        addLog('Connected to server', 'success');
+      });
+
+      socket.on('disconnect', () => {
+        document.getElementById('status').textContent = 'Disconnected ❌';
+        document.getElementById('status').className = 'error';
+        addLog('Disconnected from server', 'error');
+      });
+
+      socket.on('fileCreated', (data) => {
+        addLog(`📄 File Created: ${JSON.stringify(data)}`, 'success');
+      });
+
+      socket.on('fileApproved', (data) => {
+        addLog(`✅ File Approved: ${JSON.stringify(data)}`, 'success');
+      });
+
+      socket.on('fileRejected', (data) => {
+        addLog(`❌ File Rejected: ${JSON.stringify(data)}`, 'error');
+      });
+
+      socket.on('fileAssigned', (data) => {
+        addLog(`📥 File Assigned: ${JSON.stringify(data)}`, 'success');
+      });
+
+      socket.on('fileRevisionRequested', (data) => {
+        addLog(`🔄 Revision Requested: ${JSON.stringify(data)}`, 'log');
+      });
+
+      socket.on('fileFinalApproved', (data) => {
+        addLog(`🎉 Final Approval: ${JSON.stringify(data)}`, 'success');
+      });
+
+      socket.on('slaWarning', (data) => {
+        addLog(`⚠️ SLA Warning: ${JSON.stringify(data)}`, 'log');
+      });
+
+      socket.on('fileEscalated', (data) => {
+        addLog(`🚨 File Escalated: ${JSON.stringify(data)}`, 'error');
+      });
+
+      socket.on('connect_error', (error) => {
+        addLog(`Connection Error: ${error.message}`, 'error');
+      });
+    }
+
+    function disconnect() {
+      if (socket) {
+        socket.disconnect();
+      }
+    }
+  </script>
+</body>
+</html>

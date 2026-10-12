@@ -1,0 +1,32 @@
+# Dependencies
+**/node_modules/
+
+# Build output
+**/dist/
+**/build/
+**/coverage/
+
+# Local environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Python environments and generated files
+**/venv/
+**/.venv/
+**/__pycache__/
+*.py[cod]
+**/.pytest_cache/
+
+# Uploaded documents and other user data
+/backend/uploads/
+
+# Logs and local-only files
+*.log
+*.local
+
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
